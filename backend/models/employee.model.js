@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const employeeSchema = new Schema({
-    id:{
+    _id:{
         type: String,
         required: true,
         unique: true,
@@ -22,10 +22,10 @@ const employeeSchema = new Schema({
     },
     salary:{
         type: Number,
+        min: 0,
         required: true
     }
 },{
-    timestamps: true,
     validateBeforeSave: true,
 })
 
