@@ -3,16 +3,6 @@ import axios from 'axios'
 
 const ENDPOINT = "http://localhost:5000/users"
 
-function EmployeeCard(props){
-    return(
-        <div>
-            {props.id}
-            {props.name}
-            {props.login}
-            {props.salary}
-        </div>
-    )
-}
 
 class SalaryFilter extends React.Component {
 
@@ -42,18 +32,18 @@ class SalaryFilter extends React.Component {
 
     render(){
         return(
-            <form onSubmit={this.handleSubmit}>
-                <h4>Salary Filter</h4>
-            <label>
-                Minimum:
-                <input type="text" onChange={this.handleChangeMinSalary}/>
-            </label>
-            <label>
-                Max:
-                <input type="text" onChange={this.handleChangeMaxSalary}/>
-            </label>
-            <input type="submit" value="Filter"/>
-            </form>
+            <div className="container-fluid d-flex justify-content-center flex-column w-50">
+                    <h5 className="d-flex justify-content-center">Salary Filter</h5>
+                    <form onSubmit={this.handleSubmit} className="row">
+                        <label className="col">Minimum</label>
+                        <label className="col">Maximum</label>
+                        <div class="w-100"></div>
+                        <input type="text" onChange={this.handleChangeMinSalary} className="col"/>
+                        <input type="text" onChange={this.handleChangeMaxSalary} className="col"/>
+                        <input type="submit" value="Filter"/>
+                    </form>
+            </div>
+
         )
     }
 
@@ -74,7 +64,13 @@ class Title extends React.Component {
 
     renderTitle(title){
         return(
-                <button onClick={this.handleClick} name={title}>{title}</button>
+                <th key={title}>
+                    <button onClick={this.handleClick} 
+                            name={title} 
+                            style={{border:'none', fontWeight:'bold'}}>
+                        {title}
+                    </button>
+                </th>
         )
     }
 
@@ -99,14 +95,24 @@ class Title extends React.Component {
             titleList.push(this.renderTitle(title));
         })
         return(
-            <div>
+            <tr>
                 {titleList}
-            </div>
+            </tr>
         )
     }
 
 }
 
+function EmployeeCard(props){
+    return(
+        <tr>
+            <td>{props.id}</td>
+            <td>{props.name}</td>
+            <td>{props.login}</td>
+            <td>{props.salary}</td>
+        </tr>
+    )
+}
 
 
 export default class EmployeeList extends Component{
@@ -146,7 +152,6 @@ export default class EmployeeList extends Component{
         axios.get(query)
             .then(response=>{
                 this.setState({ employees: response.data});
-                console.log("New Query", response)
             })
             .catch(error=>{
                 console.log("Query Error", error);
@@ -156,14 +161,13 @@ export default class EmployeeList extends Component{
 
     renderEmployee(emp){
         return(
-            <div>
                 <EmployeeCard 
                     id={emp._id}
                     login={emp.login}
                     name={emp.name}
                     salary={emp.salary}
+                    key={emp._id}
                 />
-            </div>
         )
     }
 
@@ -174,10 +178,16 @@ export default class EmployeeList extends Component{
         })
         return(
             <div>
-                <button onClick={this.handleSubmit}></button>
                 <SalaryFilter onSearch={this.handleSearch}/>
-                <Title onSort={this.handleSearch}/>
-                {employeeList}
+                <h3 className="d-flex justify-content-center">Employees</h3>
+                <table className="table">
+                    <thead className="thead-light">
+                        <Title onSort={this.handleSearch}/>
+                    </thead>
+                    <tbody>
+                        {employeeList}
+                    </tbody>
+                </table>
             </div>
         )
     }
