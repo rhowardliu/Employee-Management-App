@@ -14,7 +14,7 @@ function EmployeeCard(props){
     )
 }
 
-class SearchBar extends React.Component {
+class SalaryFilter extends React.Component {
 
     constructor(props){
         super(props);
@@ -28,7 +28,6 @@ class SearchBar extends React.Component {
     }
 
     handleChangeMinSalary(event){
-        console.log(event.target.value)
         this.setState({min_salary: event.target.value});
     }
 
@@ -61,16 +60,60 @@ class SearchBar extends React.Component {
 }
 
 
+class Title extends React.Component {
+
+    constructor(props){
+        super(props);
+        this.Titles = ["Id", "Name", "Login", "Salary"];
+        this.state = {
+            sort_by: "id",
+            sort_order: "+"
+        }
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    renderTitle(title){
+        return(
+                <button onClick={this.handleClick} name={title}>{title}</button>
+        )
+    }
+
+    async handleClick(event){
+        const sortField = event.target.name.toLowerCase();
+        if (this.state.sort_by === sortField){
+            let new_order = (this.state.sort_order === "+") ? "-" : "+"
+            await this.setState({sort_order:new_order})
+        }
+        else{
+            await this.setState({
+                sort_by:sortField,
+                sort_order:"+"
+            })
+        }
+        this.props.onSort(this.state)
+    }
+
+    render(){
+        let titleList = []
+        this.Titles.forEach(title=>{
+            titleList.push(this.renderTitle(title));
+        })
+        return(
+            <div>
+                {titleList}
+            </div>
+        )
+    }
+
+}
+
+
 
 export default class EmployeeList extends Component{
 
     componentDidMount(){
         this.handleSearch();
     }
-
-    // shouldComponentUpdate(){
-    //     return false
-    // }
 
     constructor(props){
         super(props);
@@ -83,7 +126,6 @@ export default class EmployeeList extends Component{
             sort_by:"id",
             sort_order:"+"
         }
-        this.handleSubmit = this.handleSubmit.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
 
     }
@@ -113,7 +155,6 @@ export default class EmployeeList extends Component{
     }
 
     renderEmployee(emp){
-        console.log("query", this.state.query)
         return(
             <div>
                 <EmployeeCard 
@@ -126,19 +167,16 @@ export default class EmployeeList extends Component{
         )
     }
 
-    handleSubmit(event){
-        console.log(this.state.employees);
-    }
-
     render(){
         let employeeList = []
-        for (let emp in this.state.employees){
-            employeeList.push(this.renderEmployee(this.state.employees[emp]));
-        }
+        this.state.employees.forEach(employee=>{
+            employeeList.push(this.renderEmployee(employee));
+        })
         return(
             <div>
                 <button onClick={this.handleSubmit}></button>
-                <SearchBar onSearch={this.handleSearch}/>
+                <SalaryFilter onSearch={this.handleSearch}/>
+                <Title onSort={this.handleSearch}/>
                 {employeeList}
             </div>
         )
