@@ -9,8 +9,10 @@ class SalaryFilter extends React.Component {
     constructor(props){
         super(props);
         this.state = {
+            default_min:"0",
+            default_max:"1e21",
             min_salary:"0",
-            max_salary:"10000"
+            max_salary:"100000"
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChangeMinSalary = this.handleChangeMinSalary.bind(this);
@@ -18,15 +20,17 @@ class SalaryFilter extends React.Component {
     }
 
     handleChangeMinSalary(event){
-        this.setState({min_salary: event.target.value});
+        if (!event.target.value) this.setState({min_salary: this.state.default_min});
+        else this.setState({min_salary: event.target.value});
     }
 
     handleChangeMaxSalary(event){
-        this.setState({max_salary: event.target.value});
+        if (!event.target.value) this.setState({max_salary: this.state.default_max});
+        else this.setState({max_salary: event.target.value});
     }
 
     handleSubmit(event){
-        this.props.onSearch(this.state);
+        this.props.onSearch({min_salary:this.state.min_salary, max_salary:this.state.max_salary});
         event.preventDefault();
     }
 
@@ -37,7 +41,7 @@ class SalaryFilter extends React.Component {
                     <form onSubmit={this.handleSubmit} className="row">
                         <label className="col">Minimum</label>
                         <label className="col">Maximum</label>
-                        <div class="w-100"></div>
+                        <div className="w-100"></div>
                         <input type="text" onChange={this.handleChangeMinSalary} className="col"/>
                         <input type="text" onChange={this.handleChangeMaxSalary} className="col"/>
                         <input type="submit" value="Filter"/>
@@ -56,8 +60,8 @@ class Title extends React.Component {
         super(props);
         this.Titles = ["Id", "Name", "Login", "Salary"];
         this.state = {
-            sort_by: "id",
-            sort_order: "+"
+            sort_by: "",
+            sort_order: ""
         }
         this.handleClick = this.handleClick.bind(this);
     }
@@ -67,7 +71,7 @@ class Title extends React.Component {
                 <th key={title}>
                     <button onClick={this.handleClick} 
                             name={title} 
-                            style={{border:'none', fontWeight:'bold'}}>
+                            style={{border:'none', fontWeight:'bold', background:'none'}}>
                         {title}
                     </button>
                 </th>
@@ -77,7 +81,7 @@ class Title extends React.Component {
     async handleClick(event){
         const sortField = event.target.name.toLowerCase();
         if (this.state.sort_by === sortField){
-            let new_order = (this.state.sort_order === "+") ? "-" : "+"
+            let new_order = (this.state.sort_order === "-") ? "+" : "-"
             await this.setState({sort_order:new_order})
         }
         else{
@@ -86,7 +90,7 @@ class Title extends React.Component {
                 sort_order:"+"
             })
         }
-        this.props.onSort(this.state)
+        this.props.onSort({sort_by: this.state.sort_by, sort_order: this.state.sort_order});
     }
 
     render(){
@@ -125,15 +129,22 @@ export default class EmployeeList extends Component{
         super(props);
         this.state = {
             employees: [],
-            min_salary:0,
-            max_salary:10000000000,
+            min_salary:"0",
+            max_salary:"1e21",
             offset:0,
             limit:30,
             sort_by:"id",
             sort_order:"+"
         }
         this.handleSearch = this.handleSearch.bind(this);
+        this.handleOffset = this.handleOffset.bind(this);
+    }
 
+    handleOffset(event){
+        let nextOffset = 0;
+        if (event.target.name === ">") nextOffset = this.state.offset + this.state.limit;
+        else nextOffset = Math.max(0, this.state.offset - this.state.limit);
+        this.handleSearch({offset:nextOffset});
     }
 
     buildQuery(){
@@ -151,11 +162,11 @@ export default class EmployeeList extends Component{
         let query = ENDPOINT + this.buildQuery()
         axios.get(query)
             .then(response=>{
+                console.log(this.state)
                 this.setState({ employees: response.data});
             })
             .catch(error=>{
-                console.log("Query Error", error);
-                alert("Query Error")
+                alert("Salary format is wrong")
             })
     }
 
@@ -181,13 +192,18 @@ export default class EmployeeList extends Component{
                 <SalaryFilter onSearch={this.handleSearch}/>
                 <h3 className="d-flex justify-content-center">Employees</h3>
                 <table className="table">
-                    <thead className="thead-light">
+                    <caption>Employee Information</caption>
+                    <thead className="table-primary">
                         <Title onSort={this.handleSearch}/>
                     </thead>
                     <tbody>
                         {employeeList}
                     </tbody>
                 </table>
+                <div className="d-flex justify-content-center">
+                    <button type = "button" class="btn btn-outline-primary" onClick={this.handleOffset} name="<"> {"<"} </button> 
+                    <button type = "button" class="btn btn-outline-primary" onClick={this.handleOffset} name=">"> {">"} </button> 
+                </div>
             </div>
         )
     }
