@@ -149,8 +149,8 @@ export default class EmployeeList extends Component{
 
     buildQuery(){
         let query_params = ""
-        query_params += "?min_salary=" + this.state.min_salary;
-        query_params += "&max_salary=" + this.state.max_salary;
+        query_params += "?minSalary=" + this.state.min_salary;
+        query_params += "&maxSalary=" + this.state.max_salary;
         query_params += "&offset=" + this.state.offset;
         query_params += "&limit=" + this.state.limit;
         query_params += "&sort=" + this.state.sort_order + this.state.sort_by;

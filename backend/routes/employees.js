@@ -10,7 +10,7 @@ const limiter = rateLimit({
 
 
 router.route('/').get((req, res) =>{
-    const requiredParameters = ['min_salary', 'max_salary', 'limit', 'offset', 'sort']
+    const requiredParameters = ['minSalary', 'maxSalary', 'limit', 'offset', 'sort']
     requiredParameters.forEach(param=>{
         if(!req.query.hasOwnProperty(param)){
             res.status(400).json('Error: Not all required parameters are present');
@@ -20,7 +20,7 @@ router.route('/').get((req, res) =>{
     let query_params = req.query
     if (query_params.sort.slice(1,) === 'id') query_params.sort = query_params.sort.slice(0,1) + '_id';
     Employee.find({
-        salary: {$gte: query_params.min_salary, $lte:query_params.max_salary}
+        salary: {$gte: query_params.minSalary, $lte:query_params.maxSalary}
     }, null, {
         limit:Math.min(30, query_params.limit),
         skip:parseInt(query_params.offset),
